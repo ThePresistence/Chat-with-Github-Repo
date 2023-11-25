@@ -1,6 +1,6 @@
-deeplake
-langchain
-openai
+deeplake==3.3.0
+langchain==0.0.132
+openai==0.27.4
 pathspec
 python-dotenv
 streamlit
