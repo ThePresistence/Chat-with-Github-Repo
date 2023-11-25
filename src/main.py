@@ -20,22 +20,25 @@ def process_repo(args):
     Process the git repository by cloning it, filtering files, and
     creating an Activeloop dataset with the contents.
     """
-    repo_name = extract_repo_name(args.repo_url)
-    activeloop_username = os.environ.get("ACTIVELOOP_USERNAME")
+    try: 
+        repo_name = extract_repo_name(args.repo_url)
+        activeloop_username = os.environ.get("ACTIVELOOP_USERNAME")
 
-    if not args.activeloop_dataset_name:
-        args.activeloop_dataset_path = f"hub://{activeloop_username}/{repo_name}"
-    else:
-        args.activeloop_dataset_path = (
-            f"hub://{activeloop_username}/{args.activeloop_dataset_name}"
+        if not args.activeloop_dataset_name:
+            args.activeloop_dataset_path = f"hub://{activeloop_username}/{repo_name}"
+        else:
+            args.activeloop_dataset_path = (
+                f"hub://{activeloop_username}/{args.activeloop_dataset_name}"
+            )
+
+        process(
+            args.repo_url,
+            args.include_file_extensions,
+            args.activeloop_dataset_path,
+            args.repo_destination,
         )
 
-    process(
-        args.repo_url,
-        args.include_file_extensions,
-        args.activeloop_dataset_path,
-        args.repo_destination,
-    )
+    except: pass
 
 
 def chat(args):
@@ -61,49 +64,52 @@ def chat(args):
 
 def main():
     """Define and parse CLI arguments, then execute the appropriate subcommand."""
-    parser = argparse.ArgumentParser(description="Chat with a git repository")
-    subparsers = parser.add_subparsers(dest="command")
+    try: 
+        parser = argparse.ArgumentParser(description="Chat with a git repository")
+        subparsers = parser.add_subparsers(dest="command")
 
-    # Process subcommand
-    process_parser = subparsers.add_parser("process", help="Process a git repository")
-    process_parser.add_argument(
-        "--repo-url", required=True, help="The git repository URL"
-    )
-    process_parser.add_argument(
-        "--include-file-extensions",
-        nargs="+",
-        default=None,
-        help=(
-            "Exclude all files not matching these extensions. Example:"
-            " --include-file-extensions .py .js .ts .html .css .md .txt"
-        ),
-    )
-    process_parser.add_argument(
-        "--activeloop-dataset-name",
-        help=(
-            "The name for the Activeloop dataset. Defaults to the git repository name."
-        ),
-    )
-    process_parser.add_argument(
-        "--repo-destination",
-        default="repos",
-        help="The destination to clone the repository. Defaults to 'repos'.",
-    )
+        # Process subcommand
+        process_parser = subparsers.add_parser("process", help="Process a git repository")
+        process_parser.add_argument(
+            "--repo-url", required=True, help="The git repository URL"
+        )
+        process_parser.add_argument(
+            "--include-file-extensions",
+            nargs="+",
+            default=None,
+            help=(
+                "Exclude all files not matching these extensions. Example:"
+                " --include-file-extensions .py .js .ts .html .css .md .txt"
+            ),
+        )
+        process_parser.add_argument(
+            "--activeloop-dataset-name",
+            help=(
+                "The name for the Activeloop dataset. Defaults to the git repository name."
+            ),
+        )
+        process_parser.add_argument(
+            "--repo-destination",
+            default="repos",
+            help="The destination to clone the repository. Defaults to 'repos'.",
+        )
 
-    # Chat subcommand
-    chat_parser = subparsers.add_parser("chat", help="Start the chat application")
-    chat_parser.add_argument(
-        "--activeloop-dataset-name",
-        required=True,
-        help="The name of one of your existing Activeloop datasets.",
-    )
+        # Chat subcommand
+        chat_parser = subparsers.add_parser("chat", help="Start the chat application")
+        chat_parser.add_argument(
+            "--activeloop-dataset-name",
+            required=True,
+            help="The name of one of your existing Activeloop datasets.",
+        )
 
-    args = parser.parse_args()
+        args = parser.parse_args()
 
-    if args.command == "process":
-        process_repo(args)
-    elif args.command == "chat":
-        chat(args)
+        if args.command == "process":
+            process_repo(args)
+        elif args.command == "chat":
+            chat(args)
+
+    except: pass
 
 
 if __name__ == "__main__":
